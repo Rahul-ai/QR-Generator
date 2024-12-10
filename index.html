@@ -3,18 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Display Base64 Image</title>
+    <title>Image Downloader</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px;
+        }
+        .container {
+            max-width: 500px;
+            margin: auto;
+            text-align: center;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 20px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
 
-<img id="image" alt="Base64 Image" style="max-width: 100%; height: auto;" />
+<div class="container">
+    <h2>Enter URL to Download QR Code</h2>
+    <textarea id="textInput" placeholder="Past Url here...."></textarea>    
+    <br>
+    <button onclick="createURL()">Download</button>
+    <canvas id="myCanvas" width="400" height="400"></canvas>
+</div>
 
 <script>
-    // Your Base64 image string
-    const base64Image = "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";
-
-    // Set the src of the image
-    document.getElementById('image').src = 'data:image/jpeg;base64,' + base64Image;
+    function createURL() {
+        const data = document.getElementById("textInput").value;
+        var canvas = document.getElementById('myCanvas');
+        var ctx = canvas.getContext('2d');
+        var img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=1000x1000&data='+data;
+        img.onload = function() {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            var dataURL = canvas.toDataURL('image/png'); // Convert canvas to Data URL
+            var a = document.createElement('a');
+            a.href = dataURL;
+            document.body.appendChild(a);
+            a.download = 'QRImage.png';
+            a.click();
+            document.body.removeChild(a); 
+        };
+    }
 </script>
 
 </body>
